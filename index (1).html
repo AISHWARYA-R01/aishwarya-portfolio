@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aishwarya Rajasekaran — Case File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0908;
+    --bg-panel:#131110;
+    --bg-panel-alt:#1b1713;
+    --gold:#c9a227;
+    --gold-bright:#eecd6e;
+    --gold-dim:#5f4e17;
+    --text:#f2ead9;
+    --text-dim:#a89e88;
+    --text-faint:#655c4c;
+    --danger:#b8562f;
+    --border:rgba(201,162,39,0.18);
+    --border-strong:rgba(201,162,39,0.4);
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Inter',sans-serif;
+    --nav-w:252px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  ::selection{background:var(--gold); color:#0a0908;}
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--gold-dim); border-radius:0;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ambient scan texture */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.012) 0px,
+      rgba(255,255,255,0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events:none;
+    z-index:9000;
+    mix-blend-mode:overlay;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:radial-gradient(ellipse at 50% 0%, rgba(201,162,39,0.05), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .noise-line{
+    position:fixed; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, rgba(201,162,39,0.5), transparent);
+    z-index:8000;
+    pointer-events:none;
+    animation:sweep 7s linear infinite;
+    opacity:0.6;
+  }
+  @keyframes sweep{
+    0%{ top:-2px; }
+    100%{ top:100vh; }
+  }
+
+  a{color:inherit; text-decoration:none;}
+
+  /* ===== NAV ===== */
+  #topbar{
+    position:fixed; top:0; left:0; right:0; height:52px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 22px;
+    background:rgba(10,9,8,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    z-index:500;
+    font-family:var(--mono);
+  }
+  #topbar .brand{
+    font-size:12px; letter-spacing:.14em; color:var(--gold-bright); font-weight:700;
+    display:flex; align-items:center; gap:8px;
+  }
+  #topbar .brand .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--gold);
+    box-shadow:0 0 8px 1px var(--gold);
+    animation:blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  #topbar .clock{font-size:11px; color:var(--text-faint); letter-spacing:.08em;}
+  #topbar .menu-btn{
+    display:none; background:none; border:1px solid var(--border-strong); color:var(--gold-bright);
+    font-family:var(--mono); font-size:11px; padding:6px 10px; cursor:pointer; letter-spacing:.08em;
+  }
+
+  nav#dossier{
+    position:fixed; top:52px; left:0; bottom:0; width:var(--nav-w);
+    border-right:1px solid var(--border);
+    background:var(--bg-panel);
+    padding:26px 0;
+    z-index:400;
+    overflow-y:auto;
+  }
+  nav#dossier .label{
+    font-family:var(--mono); font-size:10px; color:var(--text-faint);
+    letter-spacing:.18em; padding:0 24px 14px; text-transform:uppercase;
+  }
+  nav#dossier ul{list-style:none;}
+  nav#dossier a{
+    display:flex; align-items:baseline; gap:10px;
+    padding:11px 24px; font-family:var(--mono); font-size:12.5px;
+    color:var(--text-dim); border-left:2px solid transparent;
+    letter-spacing:.03em;
+    transition:color .25s ease, border-color .25s ease, background .25s ease, padding-left .25s ease;
+  }
+  nav#dossier a .idx{color:var(--gold-dim); font-weight:700; transition:color .25s ease;}
+  nav#dossier a:hover{color:var(--text); background:rgba(201,162,39,0.05); padding-left:28px;}
+  nav#dossier a.active{
+    color:var(--gold-bright); border-left-color:var(--gold);
+    background:rgba(201,162,39,0.07);
+  }
+  nav#dossier a.active .idx{color:var(--gold-bright);}
+  nav#dossier .foot{
+    margin-top:26px; padding:16px 24px 0; border-top:1px solid var(--border);
+    font-family:var(--mono); font-size:10.5px; color:var(--text-faint); line-height:1.9;
+  }
+  nav#dossier .foot span{color:var(--gold-dim);}
+
+  main{margin-left:var(--nav-w); padding-top:52px; position:relative; z-index:1;}
+
+  section{
+    padding:110px 64px 90px;
+    max-width:980px;
+    border-bottom:1px solid var(--border);
+  }
+  section:last-of-type{border-bottom:none;}
+
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em; color:var(--gold);
+    text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--gold-dim);}
+
+  h2.section-title{
+    font-family:var(--mono); font-size:clamp(26px,3.4vw,38px); font-weight:700;
+    color:var(--text); letter-spacing:.01em; margin-bottom:38px;
+    min-height:1.2em;
+  }
+  h2.section-title .tag{
+    color:var(--gold-dim); font-size:0.5em; vertical-align:middle; margin-left:14px; font-weight:500;
+  }
+
+  /* ===== HERO ===== */
+  #hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding:52px 64px 60px; max-width:none; position:relative; overflow:hidden;
+    border-bottom:1px solid var(--border);
+  }
+  #hero .grid-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(201,162,39,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,162,39,0.055) 1px, transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(ellipse 70% 60% at 30% 40%, black, transparent);
+    pointer-events:none;
+  }
+  #hero .content{position:relative; z-index:2; max-width:900px;}
+  .terminal-boot{
+    font-family:var(--mono); font-size:12.5px; color:var(--text-faint); line-height:2;
+    margin-bottom:34px; min-height:110px;
+  }
+  .terminal-boot .ok{color:var(--gold);}
+  .terminal-boot .caret{display:inline-block; width:7px; height:13px; background:var(--gold); margin-left:2px; animation:blink 1s steps(1) infinite; vertical-align:middle;}
+
+  #hero h1{
+    font-family:var(--mono); font-weight:800; letter-spacing:.005em;
+    font-size:clamp(38px,6.6vw,78px); line-height:1.02;
+    color:var(--text);
+    margin-bottom:20px;
+    min-height:1.1em;
+  }
+  #hero h1 .accent{color:var(--gold-bright);}
+  #hero .role{
+    font-family:var(--mono); font-size:clamp(13px,1.6vw,16px); color:var(--gold);
+    letter-spacing:.05em; margin-bottom:26px; opacity:0; animation:fadeUp .7s ease forwards; animation-delay:2.6s;
+  }
+  #hero .desc{
+    max-width:620px; color:var(--text-dim); font-size:15.5px; margin-bottom:44px;
+    opacity:0; animation:fadeUp .7s ease forwards; animation-delay:2.85s;
+  }
+  @keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+  .stat-strip{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border);
+    margin-top:44px; max-width:820px;
+    opacity:0; animation:fadeUp .7s ease forwards; animation-delay:2.85s;
+  }
+  .stat-strip .stat{background:var(--bg-panel); padding:20px 18px; position:relative; overflow:hidden;}
+  .stat-strip .stat::after{
+    content:''; position:absolute; inset:0; background:linear-gradient(115deg, transparent 40%, rgba(201,162,39,0.14) 50%, transparent 60%);
+    transform:translateX(-120%); animation:statSheen 4.5s ease-in-out infinite;
+  }
+  .stat-strip .stat:nth-child(2)::after{animation-delay:.5s;}
+  .stat-strip .stat:nth-child(3)::after{animation-delay:1s;}
+  .stat-strip .stat:nth-child(4)::after{animation-delay:1.5s;}
+  @keyframes statSheen{0%{transform:translateX(-120%);} 35%,100%{transform:translateX(120%);}}
+  .stat-strip .num{font-family:var(--mono); font-size:28px; font-weight:700; color:var(--gold-bright); position:relative; z-index:1;}
+  .stat-strip .lbl{font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:.08em; margin-top:6px; text-transform:uppercase; position:relative; z-index:1;}
+
+  .scroll-cue{
+    position:absolute; bottom:28px; left:64px; font-family:var(--mono); font-size:10.5px;
+    color:var(--text-faint); letter-spacing:.14em; display:flex; align-items:center; gap:10px;
+    opacity:0; animation:fadeUp .7s ease forwards, hoverFloat 2.6s ease-in-out infinite; animation-delay:3.1s, 3.1s;
+  }
+  .scroll-cue .line{width:1px; height:26px; background:linear-gradient(var(--gold), transparent); animation:scrollpulse 1.8s ease-in-out infinite;}
+  @keyframes scrollpulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+  @keyframes hoverFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+
+  /* cursor glow */
+  #cursorGlow{
+    position:fixed; width:420px; height:420px; border-radius:50%; pointer-events:none; z-index:2;
+    background:radial-gradient(circle, rgba(201,162,39,0.06), transparent 70%);
+    transform:translate(-50%,-50%); left:-999px; top:-999px;
+    transition:left .12s linear, top .12s linear;
+  }
+
+  /* ticker */
+  .ticker-wrap{
+    border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    background:var(--bg-panel); overflow:hidden; white-space:nowrap; position:relative;
+  }
+  .ticker-wrap::before, .ticker-wrap::after{
+    content:''; position:absolute; top:0; bottom:0; width:60px; z-index:2; pointer-events:none;
+  }
+  .ticker-wrap::before{left:0; background:linear-gradient(90deg, var(--bg-panel), transparent);}
+  .ticker-wrap::after{right:0; background:linear-gradient(-90deg, var(--bg-panel), transparent);}
+  .ticker-track{
+    display:inline-flex; gap:0; animation:tickerScroll 34s linear infinite;
+  }
+  .ticker-track span{
+    font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--text-faint);
+    padding:14px 30px; display:inline-flex; align-items:center; gap:10px; text-transform:uppercase;
+  }
+  .ticker-track span::before{content:'◆'; color:var(--gold-dim); font-size:8px;}
+  @keyframes tickerScroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+
+  /* ===== reveal on scroll ===== */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ===== OBJECTIVE ===== */
+  .file-card{
+    border:1px solid var(--border); background:var(--bg-panel); padding:32px 34px;
+    position:relative;
+  }
+  .file-card::before{
+    content:attr(data-file); position:absolute; top:-11px; left:26px; background:var(--bg);
+    padding:0 10px; font-family:var(--mono); font-size:10.5px; color:var(--gold-dim); letter-spacing:.1em;
+  }
+  .file-card p{color:var(--text-dim); font-size:15.5px;}
+  .file-card p strong{color:var(--text); font-weight:600;}
+
+  /* ===== EDUCATION ===== */
+  .ticket{
+    border:1px solid var(--border); background:var(--bg-panel);
+    transition:box-shadow .4s ease, border-color .4s ease;
+  }
+  .ticket:hover{border-color:var(--border-strong); box-shadow:0 16px 46px -20px rgba(201,162,39,0.3);}
+  .ticket-head{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    padding:20px 28px; border-bottom:1px solid var(--border);
+  }
+  .ticket-head h3{font-family:var(--mono); font-size:18px; color:var(--text); font-weight:700;}
+  .status-pill{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; padding:5px 12px;
+    border:1px solid var(--gold-dim); color:var(--gold); text-transform:uppercase;
+  }
+  .status-pill.done{color:var(--text-dim); border-color:var(--border-strong);}
+  .ticket-body{padding:24px 28px 28px;}
+  .meta-row{display:grid; grid-template-columns:160px 1fr; gap:10px 20px; font-size:14.5px; padding:9px 0; border-bottom:1px dashed var(--border);}
+  .meta-row:last-child{border-bottom:none;}
+  .meta-row .k{font-family:var(--mono); color:var(--text-faint); font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; align-self:center;}
+  .meta-row .v{color:var(--text);}
+  .cgpa-bar{margin-top:18px;}
+  .cgpa-bar .bar-track{height:6px; background:var(--bg-panel-alt); border:1px solid var(--border); overflow:hidden;}
+  .cgpa-bar .bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition:width 1.4s cubic-bezier(.16,.8,.3,1);}
+  .cgpa-bar .bar-fill.filled{width:81%;}
+
+  /* ===== PROJECTS ===== */
+  .project{
+    border:1px solid var(--border); background:var(--bg-panel); margin-bottom:26px;
+    transition:border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+    position:relative; overflow:hidden;
+  }
+  .project::before{
+    content:''; position:absolute; top:0; left:-40%; width:40%; height:100%;
+    background:linear-gradient(100deg, transparent, rgba(201,162,39,0.07), transparent);
+    transition:left .7s ease; pointer-events:none;
+  }
+  .project:hover::before{left:120%;}
+  .project:hover{border-color:var(--border-strong); box-shadow:0 16px 46px -18px rgba(201,162,39,0.3); transform:translateY(-5px);}
+  .project-head{padding:24px 28px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start;}
+  .project-head h3{font-family:var(--mono); font-size:19px; color:var(--gold-bright); font-weight:700; margin-bottom:6px;}
+  .project-head .sub{font-size:13px; color:var(--text-faint); font-family:var(--mono);}
+  .project-body{padding:24px 28px 28px;}
+  .log-list{list-style:none;}
+  .log-list li{
+    position:relative; padding-left:22px; margin-bottom:12px; font-size:14.5px; color:var(--text-dim);
+  }
+  .log-list li::before{
+    content:'›'; position:absolute; left:0; color:var(--gold); font-weight:700; font-family:var(--mono);
+  }
+  .tag-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:20px;}
+  .pill{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; padding:5px 11px;
+    background:rgba(201,162,39,0.08); border:1px solid var(--border); color:var(--gold);
+  }
+  .risk-meter{margin-top:22px; padding-top:20px; border-top:1px dashed var(--border);}
+  .risk-meter .rm-label{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between;}
+  .risk-meter .bar-track{height:8px; background:var(--bg-panel-alt); border:1px solid var(--border); position:relative; overflow:hidden;}
+  .risk-meter .bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--gold-dim),var(--danger)); transition:width 1.6s cubic-bezier(.16,.8,.3,1);}
+  .risk-meter .bar-fill.filled{width:68%;}
+
+  /* ===== EXPERIENCE ===== */
+  .timeline{position:relative; padding-left:34px;}
+  .timeline::before{content:''; position:absolute; left:6px; top:6px; bottom:6px; width:1px; background:var(--border-strong);}
+  .tl-item{position:relative; padding-bottom:38px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:''; position:absolute; left:-34px; top:4px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--gold); box-shadow:0 0 0 3px var(--bg);
+  }
+  .tl-item h3{font-family:var(--mono); font-size:17px; color:var(--text); margin-bottom:4px;}
+  .tl-item .org{color:var(--gold); font-size:13.5px; font-family:var(--mono); margin-bottom:2px;}
+  .tl-item .period{color:var(--text-faint); font-size:12px; font-family:var(--mono); margin-bottom:12px;}
+  .tl-item p, .tl-item ul{color:var(--text-dim); font-size:14.5px;}
+
+  /* ===== SKILLS ===== */
+  .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border);}
+  .skill-block{background:var(--bg-panel); padding:24px 26px;}
+  .skill-block h4{font-family:var(--mono); font-size:11px; color:var(--gold-dim); letter-spacing:.12em; text-transform:uppercase; margin-bottom:16px;}
+  .skill-block .items{display:flex; flex-wrap:wrap; gap:8px;}
+  .skill-chip{
+    font-family:var(--mono); font-size:12px; padding:7px 13px; border:1px solid var(--border);
+    color:var(--text-dim); transition:all .25s ease; cursor:default;
+  }
+  .skill-chip:hover{border-color:var(--gold); color:var(--gold-bright); background:rgba(201,162,39,0.06); transform:translateY(-2px);}
+
+  /* ===== RECOGNITION ===== */
+  .rec-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:760px){.rec-grid{grid-template-columns:1fr;}}
+  .rec-card{
+    border:1px solid var(--border); background:var(--bg-panel); padding:22px 24px;
+    transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+  .rec-card:hover{transform:translateY(-4px); border-color:var(--border-strong); box-shadow:0 14px 36px -18px rgba(201,162,39,0.28);}
+  .rec-card .eyebrow{margin-bottom:12px; font-size:10px;}
+  .rec-card h4{font-family:var(--mono); font-size:15px; color:var(--text); margin-bottom:8px; line-height:1.4;}
+  .rec-card p{font-size:13.5px; color:var(--text-dim);}
+  .rec-card .when{font-family:var(--mono); font-size:11px; color:var(--gold-dim); margin-top:12px; display:block;}
+
+  /* ===== CONTACT ===== */
+  #contact{border-bottom:none;}
+  .term-window{
+    border:1px solid var(--border-strong); background:var(--bg-panel);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border);
+    font-family:var(--mono); font-size:11px; color:var(--text-faint);
+  }
+  .term-bar .dots{display:flex; gap:6px;}
+  .term-bar .dots span{width:9px; height:9px; border-radius:50%; background:var(--gold-dim);}
+  .term-body{padding:30px 32px; font-family:var(--mono); font-size:14px;}
+  .term-body .prompt{color:var(--gold);}
+  .term-body .line{margin-bottom:14px; color:var(--text-dim);}
+  .term-body a.contact-link{color:var(--text); border-bottom:1px solid var(--border-strong); padding-bottom:1px; transition:color .2s ease, border-color .2s ease;}
+  .term-body a.contact-link:hover{color:var(--gold-bright); border-color:var(--gold-bright);}
+
+  footer{padding:34px 64px 60px; font-family:var(--mono); font-size:11px; color:var(--text-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  footer span{color:var(--gold-dim);}
+
+  @media (max-width:900px){
+    :root{--nav-w:0px;}
+    nav#dossier{
+      top:52px; left:0; right:0; bottom:auto; width:100%; height:auto;
+      display:flex; overflow-x:auto; padding:0; border-right:none; border-bottom:1px solid var(--border);
+    }
+    nav#dossier .label, nav#dossier .foot{display:none;}
+    nav#dossier ul{display:flex;}
+    nav#dossier a{padding:14px 16px; white-space:nowrap; border-left:none; border-bottom:2px solid transparent;}
+    nav#dossier a.active{border-left:none; border-bottom-color:var(--gold);}
+    main{margin-left:0; padding-top:96px;}
+    section{padding:60px 22px 60px;}
+    #hero{padding:96px 22px 60px; min-height:auto;}
+    .scroll-cue{left:22px;}
+    .meta-row{grid-template-columns:1fr;}
+    .stat-strip{grid-template-columns:repeat(2,1fr);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="noise-line"></div>
+<div id="cursorGlow"></div>
+
+<header id="topbar">
+  <div class="brand"><span class="dot"></span> CASE_FILE // A.RAJASEKARAN</div>
+  <div class="clock" id="clock">CHENNAI, IN · --:--:--</div>
+</header>
+
+<nav id="dossier">
+  <div class="label">Dossier Index</div>
+  <ul>
+    <li><a href="#objective" class="nav-link"><span class="idx">00</span>OBJECTIVE</a></li>
+    <li><a href="#education" class="nav-link"><span class="idx">01</span>EDUCATION</a></li>
+    <li><a href="#projects" class="nav-link"><span class="idx">02</span>PROJECTS</a></li>
+    <li><a href="#experience" class="nav-link"><span class="idx">03</span>EXPERIENCE</a></li>
+    <li><a href="#skills" class="nav-link"><span class="idx">04</span>SKILLS</a></li>
+    <li><a href="#recognition" class="nav-link"><span class="idx">05</span>RECOGNITION</a></li>
+    <li><a href="#contact" class="nav-link"><span class="idx">06</span>CONTACT</a></li>
+  </ul>
+  <div class="foot"><span>STATUS:</span> ACTIVE<br><span>CLEARANCE:</span> PUBLIC<br><span>UPDATED:</span> AUG 2026</div>
+</nav>
+
+<main>
+
+  <section id="hero">
+    <div class="grid-bg"></div>
+    <div class="content">
+      <div class="terminal-boot" id="bootLines"></div>
+      <h1 id="heroName">AISHWARYA<br><span class="accent">RAJASEKARAN</span></h1>
+      <div class="role">SOC ANALYST (IN TRAINING) · THREAT DETECTION · DIGITAL FORENSICS</div>
+      <p class="desc">Third-year B.E. Cybersecurity student at SRM Valliammai Engineering College, building real detection and forensic tooling — from privacy-risk engines to CDR investigation platforms — while training for a career on the front line of a SOC.</p>
+      <div class="stat-strip">
+        <div class="stat"><div class="num" data-count="8.10" data-decimals="2">0.00</div><div class="lbl">CGPA</div></div>
+        <div class="stat"><div class="num" data-count="2" data-pad="2">00</div><div class="lbl">Flagship Builds</div></div>
+        <div class="stat"><div class="num" data-count="5" data-pad="2">00</div><div class="lbl">Certifications</div></div>
+        <div class="stat"><div class="num" data-count="2" data-pad="2">00</div><div class="lbl">Papers Presented</div></div>
+      </div>
+    </div>
+    <div class="scroll-cue"><div class="line"></div>SCROLL TO DECRYPT</div>
+  </section>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span>THREAT DETECTION</span><span>DIGITAL FORENSICS</span><span>SOC OPERATIONS</span><span>INCIDENT RESPONSE</span><span>NETWORK SECURITY</span><span>RISK SCORING</span><span>GEOSPATIAL INTELLIGENCE</span><span>PYTHON</span>
+      <span>THREAT DETECTION</span><span>DIGITAL FORENSICS</span><span>SOC OPERATIONS</span><span>INCIDENT RESPONSE</span><span>NETWORK SECURITY</span><span>RISK SCORING</span><span>GEOSPATIAL INTELLIGENCE</span><span>PYTHON</span>
+    </div>
+  </div>
+
+  <section id="objective">
+    <div class="eyebrow">File 00 / Personnel Statement</div>
+    <h2 class="section-title reveal" data-decrypt="OBJECTIVE">OBJECTIVE</h2>
+    <div class="file-card reveal" data-file="OBJ-001.TXT">
+      <p><strong>Career direction:</strong> Third-year B.E. Cybersecurity student with a focused interest in network security, SOC operations, and incident response, seeking an international internship to apply and expand technical expertise in a globally competitive environment. Eager to collaborate with industry professionals, gain cross-cultural exposure, and contribute to cutting-edge cybersecurity initiatives while building toward a world-class career in information security.</p>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="eyebrow">File 01 / Academic Record</div>
+    <h2 class="section-title reveal" data-decrypt="EDUCATION">EDUCATION</h2>
+    <div class="ticket reveal">
+      <div class="ticket-head">
+        <h3>Bachelor of Engineering — Cyber Security</h3>
+        <span class="status-pill">IN PROGRESS</span>
+      </div>
+      <div class="ticket-body">
+        <div class="meta-row"><div class="k">Institution</div><div class="v">SRM Valliammai Engineering College, Kattankulathur</div></div>
+        <div class="meta-row"><div class="k">Duration</div><div class="v">2024 — 2026</div></div>
+        <div class="meta-row"><div class="k">CGPA</div><div class="v">8.10 / 10</div></div>
+        <div class="cgpa-bar"><div class="bar-track"><div class="bar-fill" id="cgpaFill"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="eyebrow">File 02 / Active Builds</div>
+    <h2 class="section-title reveal" data-decrypt="PROJECTS">PROJECTS</h2>
+
+    <div class="project reveal">
+      <div class="project-head">
+        <div>
+          <h3>SCPO Lite — Screen Context Privacy Observer</h3>
+          <div class="sub">AI-driven visual privacy surveillance system</div>
+        </div>
+        <span class="status-pill">MONITORING</span>
+      </div>
+      <div class="project-body">
+        <ul class="log-list">
+          <li>Real-time face detection identifies unauthorized individuals near a user's screen.</li>
+          <li>Custom Visual Exposure Risk Engine scores exposure by intrusion behavior, proximity, and duration.</li>
+          <li>Automated alerts, evidence capture, and SQLite-based incident logging feed a live monitoring dashboard.</li>
+        </ul>
+        <div class="tag-row">
+          <span class="pill">Python</span><span class="pill">FastAPI</span><span class="pill">WebSocket</span>
+          <span class="pill">OpenCV</span><span class="pill">SQLite</span>
+        </div>
+        <div class="risk-meter">
+          <div class="rm-label"><span>VISUAL EXPOSURE RISK ENGINE — SAMPLE READ</span><span>68%</span></div>
+          <div class="bar-track"><div class="bar-fill" id="riskFill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project reveal">
+      <div class="project-head">
+        <div>
+          <h3>GTAP — Geospatial Threat Analysis Platform</h3>
+          <div class="sub">Tower dump &amp; CDR forensic investigation system</div>
+        </div>
+        <span class="status-pill">DEPLOYED</span>
+      </div>
+      <div class="project-body">
+        <ul class="log-list">
+          <li>Processes tower dump and CDR data into behavioral profiles and investigative risk assessments.</li>
+          <li>Geospatial intelligence and network analysis modules visualize movement, co-location, and hidden associations between entities.</li>
+          <li>Secure role-based dashboard with authentication, access control, and interactive map visualizations for digital forensics.</li>
+        </ul>
+        <div class="tag-row">
+          <span class="pill">Python</span><span class="pill">Streamlit</span><span class="pill">SHA-256 RBAC</span>
+          <span class="pill">Geospatial Mapping</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="eyebrow">File 03 / Field Record</div>
+    <h2 class="section-title reveal" data-decrypt="EXPERIENCE">EXPERIENCE</h2>
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <h3>Internship — Problem Solving &amp; Python Programming</h3>
+        <div class="org">St. Joseph Institute of Technology</div>
+        <div class="period">APRIL 2024 — MAY 2024</div>
+        <ul class="log-list">
+          <li>Completed a short-term internship focused on Python programming fundamentals.</li>
+          <li>Built hands-on skill in logical problem-solving and algorithmic thinking through guided training.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="eyebrow">File 04 / Toolkit</div>
+    <h2 class="section-title reveal" data-decrypt="SKILLS &amp; CERTIFICATIONS">SKILLS &amp; CERTIFICATIONS</h2>
+    <div class="skill-grid reveal">
+      <div class="skill-block">
+        <h4>Language</h4>
+        <div class="items"><span class="skill-chip">Python</span></div>
+      </div>
+      <div class="skill-block">
+        <h4>Cybersecurity Tools</h4>
+        <div class="items"><span class="skill-chip">VirusTotal (basics)</span></div>
+      </div>
+      <div class="skill-block">
+        <h4>Soft Skills</h4>
+        <div class="items">
+          <span class="skill-chip">Leadership</span><span class="skill-chip">Self-Learning</span><span class="skill-chip">Adaptability</span>
+        </div>
+      </div>
+      <div class="skill-block" style="grid-column:1 / -1;">
+        <h4>Courses &amp; Certifications</h4>
+        <div class="items">
+          <span class="skill-chip">Cybersecurity Analyst Job Simulation — Forage</span>
+          <span class="skill-chip">Python for Data Science — NPTEL</span>
+          <span class="skill-chip">Cloud Computing — NPTEL</span>
+          <span class="skill-chip">SOC Operations — SRM Value Added Course</span>
+          <span class="skill-chip">Network Security — SRM Value Added Course</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recognition">
+    <div class="eyebrow">File 05 / Commendations</div>
+    <h2 class="section-title reveal" data-decrypt="RECOGNITION">RECOGNITION</h2>
+    <div class="rec-grid reveal">
+      <div class="rec-card">
+        <div class="eyebrow" style="margin-bottom:8px;">Paper Presentation</div>
+        <h4>"Lip Synchronisation" — SPECTRON</h4>
+        <p>Technical symposium hosted by Crescent Institute of Science and Technology — presented original research to a peer and faculty audience.</p>
+        <span class="when">CRESCENT IST</span>
+      </div>
+      <div class="rec-card">
+        <div class="eyebrow" style="margin-bottom:8px;">Paper Presentation</div>
+        <h4>"Neuromorphic Computing" — IT Dept. Symposium</h4>
+        <p>Presented at the IT Department Symposium, Madras Institute of Technology.</p>
+        <span class="when">MADRAS INSTITUTE OF TECHNOLOGY</span>
+      </div>
+      <div class="rec-card">
+        <div class="eyebrow" style="margin-bottom:8px;">Position of Responsibility</div>
+        <h4>Executive Committee Member — Whitehatians Club</h4>
+        <p>Cybersecurity club leadership role coordinating initiatives and events.</p>
+        <span class="when">OCT 2025</span>
+      </div>
+      <div class="rec-card">
+        <div class="eyebrow" style="margin-bottom:8px;">Position of Responsibility</div>
+        <h4>Event Organiser — Zyverse 2k25</h4>
+        <p>Led organisation and execution of a technical department event.</p>
+        <span class="when">SEPT 2025</span>
+      </div>
+      <div class="rec-card" style="grid-column:1 / -1;">
+        <div class="eyebrow" style="margin-bottom:8px;">Community Service</div>
+        <h4>NSS Volunteer</h4>
+        <p>Actively participated in community service initiatives, awareness programs, social outreach activities, and volunteer programs — demonstrating leadership, teamwork, and social responsibility.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="eyebrow">File 06 / Contact Protocol</div>
+    <h2 class="section-title reveal" data-decrypt="ESTABLISH CONTACT">ESTABLISH CONTACT</h2>
+    <div class="term-window reveal">
+      <div class="term-bar"><div class="dots"><span></span><span></span><span></span></div>contact.sh</div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> cat contact_info.txt</div>
+        <div class="line">EMAIL &nbsp;&nbsp;&nbsp;→ <a class="contact-link" href="mailto:aishu110407@gmail.com">aishu110407@gmail.com</a></div>
+        <div class="line">PHONE &nbsp;&nbsp;&nbsp;→ <a class="contact-link" href="tel:+919445424147">+91 94454 24147</a></div>
+        <div class="line">LOCATION → Mylapore, Chennai, India</div>
+        <div class="line">LINKEDIN → <a class="contact-link" href="https://linkedin.com/in/aishwaryarajasekaran001" target="_blank" rel="noopener">linkedin.com/in/aishwaryarajasekaran001</a></div>
+        <div class="line">GITHUB &nbsp;&nbsp;&nbsp;→ <a class="contact-link" href="https://github.com/aishwary1104" target="_blank" rel="noopener">github.com/aishwary1104</a></div>
+        <div class="line" style="margin-top:6px;"><span class="prompt">$</span> <span id="contactCaret">_</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 AISHWARYA RAJASEKARAN — <span>CASE FILE CLOSED ON SCROLL, OPEN ON REQUEST</span></div>
+    <div>BUILT FOR RECRUITMENT REVIEW</div>
+  </footer>
+
+</main>
+
+<script>
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// live clock
+function updateClock(){
+  const d = new Date();
+  const t = d.toLocaleTimeString('en-GB', {hour12:false});
+  document.getElementById('clock').textContent = 'CHENNAI, IN · ' + t;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// cursor glow (desktop only, respects reduced motion)
+if(!reduceMotion && window.matchMedia('(pointer:fine)').matches){
+  const glow = document.getElementById('cursorGlow');
+  window.addEventListener('pointermove', (e)=>{
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+}
+
+// hero grid parallax on mouse move
+const heroGrid = document.querySelector('#hero .grid-bg');
+const heroSection = document.getElementById('hero');
+if(heroGrid && !reduceMotion){
+  heroSection.addEventListener('mousemove', (e)=>{
+    const x = (e.clientX / window.innerWidth - 0.5) * 18;
+    const y = (e.clientY / window.innerHeight - 0.5) * 18;
+    heroGrid.style.transform = `translate(${x}px, ${y}px)`;
+  });
+}
+
+// stagger reveal delays within grouped containers
+document.querySelectorAll('.rec-grid, .skill-grid').forEach(group=>{
+  Array.from(group.children).forEach((child, i)=>{
+    child.style.transitionDelay = (i * 0.08) + 's';
+  });
+});
+document.querySelectorAll('#projects .project').forEach((el, i)=>{
+  el.classList.add('reveal');
+  el.style.transitionDelay = (i * 0.12) + 's';
+});
+
+// count-up numbers on scroll into view
+function animateCount(el){
+  const target = parseFloat(el.getAttribute('data-count'));
+  const decimals = parseInt(el.getAttribute('data-decimals') || '0');
+  const pad = parseInt(el.getAttribute('data-pad') || '0');
+  const duration = 1400;
+  const start = performance.now();
+  function frame(now){
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = target * eased;
+    el.textContent = decimals ? val.toFixed(decimals) : String(Math.round(val)).padStart(pad, '0');
+    if(p < 1) requestAnimationFrame(frame);
+    else el.textContent = decimals ? target.toFixed(decimals) : String(target).padStart(pad, '0');
+  }
+  requestAnimationFrame(frame);
+}
+const countEls = document.querySelectorAll('[data-count]');
+const countObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animateCount(e.target);
+      countObs.unobserve(e.target);
+    }
+  });
+}, {threshold:0.6});
+countEls.forEach(el=>countObs.observe(el));
+
+// scrollspy
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('main section[id]');
+const spy = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    const link = document.querySelector('.nav-link[href="#'+e.target.id+'"]');
+    if(!link) return;
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      link.classList.add('active');
+    }
+  });
+}, {rootMargin:'-40% 0px -50% 0px', threshold:0});
+sections.forEach(s=>spy.observe(s));
+
+// reveal on scroll
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, {threshold:0.15});
+revealEls.forEach(el=>revealObs.observe(el));
+
+// bar fills trigger on visibility
+function watchBar(id, delay){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        setTimeout(()=>el.classList.add('filled'), delay||0);
+        obs.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.4});
+  obs.observe(el);
+}
+watchBar('cgpaFill');
+watchBar('riskFill');
+
+// decrypt scramble effect for section titles
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&/\\<>[]';
+function decryptText(el){
+  const final = el.getAttribute('data-decrypt') || el.textContent;
+  const len = final.length;
+  let frame = 0;
+  const totalFrames = 22;
+  const resolveOrder = [...Array(len).keys()].sort(()=>Math.random()-0.5);
+  const resolvedBy = Math.ceil(totalFrames * 0.85);
+  function tick(){
+    let out = '';
+    for(let i=0;i<len;i++){
+      const ch = final[i];
+      if(ch === ' '){ out += ' '; continue; }
+      const posInOrder = resolveOrder.indexOf(i);
+      const revealFrame = (posInOrder/len) * resolvedBy;
+      if(frame >= revealFrame){
+        out += ch;
+      } else {
+        out += GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+      }
+    }
+    el.textContent = out;
+    frame++;
+    if(frame <= totalFrames){
+      requestAnimationFrame(()=>setTimeout(tick, 26));
+    } else {
+      el.textContent = final;
+    }
+  }
+  tick();
+}
+const titleEls = document.querySelectorAll('[data-decrypt]');
+const titleObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      decryptText(e.target);
+      titleObs.unobserve(e.target);
+    }
+  });
+}, {threshold:0.4});
+titleEls.forEach(el=>titleObs.observe(el));
+
+// hero boot sequence terminal + name decrypt
+const bootEl = document.getElementById('bootLines');
+const bootScript = [
+  {t:'> initializing secure_profile.sh', ok:false},
+  {t:'> loading identity ............. OK', ok:true},
+  {t:'> verifying clearance level ..... GRANTED', ok:true},
+  {t:'> access level: RECRUITER / PUBLIC', ok:false},
+];
+function typeInto(div, text, speed){
+  return new Promise(resolve=>{
+    let i = 0;
+    function step(){
+      div.textContent = text.slice(0,i);
+      i++;
+      if(i <= text.length){
+        setTimeout(step, speed);
+      } else {
+        resolve();
+      }
+    }
+    step();
+  });
+}
+
+async function bootSequence(){
+  if(reduceMotion){
+    bootEl.innerHTML = bootScript.map(l=>'<div class="'+(l.ok?'ok':'')+'">'+l.t+'</div>').join('');
+    document.getElementById('heroName').innerHTML = 'AISHWARYA<br><span class="accent">RAJASEKARAN</span>';
+    return;
+  }
+  for(const line of bootScript){
+    const div = document.createElement('div');
+    if(line.ok) div.className='ok';
+    bootEl.appendChild(div);
+    await typeInto(div, line.t, 10);
+    await new Promise(r=>setTimeout(r, 140));
+  }
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  bootEl.appendChild(caret);
+
+  // decrypt hero name after boot
+  await new Promise(r=>setTimeout(r, 300));
+  const nameEl = document.getElementById('heroName');
+  const first = 'AISHWARYA';
+  const last = 'RAJASEKARAN';
+  let frame = 0;
+  const totalFrames = 26;
+  function tick(){
+    const revealCount1 = Math.floor((frame/totalFrames)*first.length);
+    const revealCount2 = Math.floor((frame/totalFrames)*last.length);
+    let out1 = '', out2 = '';
+    for(let i=0;i<first.length;i++){
+      out1 += i < revealCount1 ? first[i] : GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+    }
+    for(let i=0;i<last.length;i++){
+      out2 += i < revealCount2 ? last[i] : GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+    }
+    nameEl.innerHTML = out1 + '<br><span class="accent">' + out2 + '</span>';
+    frame++;
+    if(frame <= totalFrames){
+      setTimeout(()=>requestAnimationFrame(tick), 30);
+    } else {
+      nameEl.innerHTML = first + '<br><span class="accent">' + last + '</span>';
+    }
+  }
+  tick();
+}
+bootSequence();
+
+// mobile nav close on link click (no-op needed since horizontal bar, but smooth focus)
+links.forEach(l=>{
+  l.addEventListener('click', ()=>{
+    links.forEach(x=>x.classList.remove('active'));
+    l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
